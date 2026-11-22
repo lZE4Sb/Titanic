@@ -1,0 +1,134 @@
+###########  ENVIRONMENT ##########
+
+general: 
+  seed           : 42
+  debug          : False
+
+######### DATA PROCESSING ############
+
+paths: 
+  train_csv : ./data/train.csv
+  test_csv  : ./data/test.csv
+  output_dir: ./outputs
+
+data: 
+  id_col              : 'PassengerId'
+  test_size           : 0.2
+  split_strategy      : kfold # kfold | train_val
+  stratify            : true
+  n_splits            : 5
+  val_size            : 0.2 # for train_val split
+  pipeline            : boosting     # linear | boosting
+  target_col          : 'Survived'
+  log_transform_target: False
+
+######### MODEL CHOOSING ############
+
+model_type : boosting       # boosting | torch
+model_class: cat           # lgbm | xgb | cat | torch
+task_type  : binary  # regression | binary | multiclass 
+
+######### BOOSTING PARAMS ############
+
+xgb:
+  params:
+    n_estimators: 315
+    learning_rate: 0.023801397354625508
+    random_state: 42
+    max_depth: 10
+    subsample: 0.6204235947791349
+    early_stopping_rounds: 30
+    eval_metric: logloss  # 'rmse' | 'mae' | 'rmsle' || 'logloss' | 'auc' | 'error' || 'mlogloss' | 'merror'
+  fit_params: 
+    colsample_bytree: 0.7755175554888327
+    min_child_weight: 9
+    reg_alpha: 2.522514705096156e-06
+    reg_lambda: 6.007594135586715e-07
+    scale_pos_weight: 1.321973208779714
+    verbose: 0
+
+lgbm:
+  params:
+    n_estimators: 28
+    learning_rate: 0.10383698178896662
+    random_state: 42
+    num_leaves: 15
+    bagging_freq: 1
+    max_depth: 9
+    subsample: 0.8569145017927361
+    colsample_bytree: 0.6428874166780976
+    reg_alpha: 4.105970670164668e-08
+    reg_lambda: 1.7733264672812385e-06
+    is_unbalance: false
+  callbacks:
+    es_rounds: 50
+    log_evaluation: 0
+  fit_params:
+    eval_metric: binary_logloss   # 'rmse' | 'l2' (MSE) | 'l1' (MAE) | 'mape' || 'binary_logloss' | 'auc' | 'average_precision' || 'multi_logloss' | 'multi_error'
+    categorical_feature: auto
+
+cat:
+  params:
+    iterations: 311
+    learning_rate: 0.012388538520061087
+    random_seed: 42
+    depth: 7
+    l2_leaf_reg: 3.4362285469126066
+    eval_metric: 'Logloss'       # 'RMSE' | 'MAE' | 'R2' || 'Logloss' | 'AUC' | 'CrossEntropy' | 'Accuracy' | 'Precision' | 'Recall' | 'F1' | 'PRAUC' || 'MultiClass' | 'Logloss'
+    nan_mode: 'Min'    
+    boosting_type: 'Ordered'       # 'Ordered' | 'Plain'
+    max_ctr_complexity: 3               # number of combination of cat features, 1 - no combinations
+    one_hot_max_size: 25              # number of values in cat features to going to one-hot, no CTR computation
+    allow_writing_files: False           # don't write catboost_info on disc
+    thread_count: -1   
+    bagging_temperature: 0.9481363861027945
+    random_strength: 0.0702298075516466
+    auto_class_weights: None
+  fit_params:
+    early_stopping_rounds: 30
+    verbose: 0
+
+
+######### TORCH PARAMS ########
+
+nn:
+  data:
+    batch_size: 64
+    num_workers: 0
+  model:
+    input_dim: 8
+    hidden_dim: 128
+    num_layers: 4
+    dropout: 0.05486188970520903
+    activation: relu   # relu | tanh
+    output_dim: 1
+  training:
+    optimizer: sgd # adam | sgd | rmsprop
+    scheduler: cosine  # plateau | cosine | none
+    scheduler_factor: 0.5
+    scheduler_patience: 5
+    min_lr: 1.0e-06
+    loss: bce   # mse | mae | rmse | crossentropy | bce
+    lr: 0.0038923557630912457
+    weight_decay: 0.0012265179436268792
+    momentum: 0.8755768201471067
+    epochs: 122
+    patience: 25
+    device: cpu
+    verbose: 9999  # 9999 to stop notifications
+
+######### OPTIMISATION ############
+
+optuna: 
+  enabled   : True
+  n_trials  : 5
+  metric    : accuracy   # rmsle | rmse | mae | r2 | wape || roc_auc | pr_auc | log_loss | f1 | accuracy
+  timeout   : null      # sec, null = no limit
+  save_study: true
+
+######### RESULTS ############
+result:
+  num_iterations_strategy: median # mean | median
+  mode:
+    study: True # optuna study
+    train: True # train full model
