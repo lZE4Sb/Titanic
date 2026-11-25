@@ -2,7 +2,7 @@
 
 ### Как использовать
 
-1. `pip install -r requirements`
+1. `pip install -r requirements.txt`
 2. `python -m main` для запуска подбора Optuna и/или обучения модели нейросети/бустинга. Режим можно настроить в config.yaml.
 3. `python -m other_models` для проверки на прочих моделей (Регрессия, KNN, одиночное дерево, Random Forest)
 4. Результаты оптимизации (конфиг, графики) и обучения (модель) логируются mlflow, файл Optuna studies сохраняется в **outputs/**
